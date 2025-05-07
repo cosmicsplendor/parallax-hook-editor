@@ -18,6 +18,7 @@ const WorkspacePreview: React.FC = () => {
     const cameraX = camera.initialX;
     const cameraY = camera.initialY;
     const cameraZoom = camera.initialZoom;
+   
     return (
         <Paper
             elevation={1}
@@ -55,39 +56,48 @@ const WorkspacePreview: React.FC = () => {
                             .sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0)) // Sort elements by zIndex
                             .map(element => (
                                 <Box
-                                key={element.id}
-                                sx={{
-                                position: 'absolute',
-                                // Position relative to layer center, then offset by element's X/Y
-                                // Then viewport center is (width/2, height/2)
-                                left: `calc(50% + ${element.x}px)`,
-                                top: `calc(50% + ${element.y}px)`,
-                                width: element.width * element.scale, // Apply scale to intrinsic size
-                                height: element.height * element.scale,
-                                opacity: element.opacity,
-                                transformOrigin: 'center center',
-                                transform: `translate(-50%, -50%) scale(${cameraZoom}) rotate(${element.initialRotation}deg)`, // Element's own transform
-                                outline: element.id === selectedElementId && layer.id === selectedLayerId ? '1px dashed red' : 'none',
-                                }}
-                                >
-                                <SVGViewer svgString={element.svgString} width="100%" height="100%" />
-                                
-                                {/* Transform origin indicator - rendered on top of SVG */}
-                                <Box
+                                    key={element.id}
                                     sx={{
                                         position: 'absolute',
-                                        left: '50%',
-                                        top: '50%',
-                                        width: '8px',
-                                        height: '8px',
-                                        borderRadius: '50%',
-                                        backgroundColor: 'white',
-                                        border: '1px solid black',
-                                        transform: `translate(-50%, -50%) scale(${1/cameraZoom})`, // Counter the camera zoom to keep size consistent
-                                        zIndex: 1000, // Ensure it's on top
-                                        pointerEvents: 'none', // Don't interfere with clicking
+                                        // Position relative to layer center, then offset by element's X/Y
+                                        // Then viewport center is (width/2, height/2)
+                                        left: `calc(50% + ${element.x}px)`,
+                                        top: `calc(50% + ${element.y}px)`,
+                                        width: element.width,
+                                        height: element.height,
+                                        opacity: element.opacity,
+                                        transform: `translate(-50%, -50%)`, // Center the container
+                                        outline: element.id === selectedElementId && layer.id === selectedLayerId ? '1px dashed red' : 'none',
                                     }}
-                                />
+                                >
+                                    <Box
+                                        sx={{
+                                            position: 'relative', // Ensure the transform origin indicator is positioned correctly
+                                            width: '100%',
+                                            height: '100%',
+                                            transformOrigin: `${(element.transformOriginX || 0.5) * 100}% ${(element.transformOriginY || 0.5) * 100}%`,
+                                            transform: `scale(${element.scale * cameraZoom}) rotate(${element.initialRotation}deg)`,
+                                        }}
+                                    >
+                                        <SVGViewer svgString={element.svgString} width="100%" height="100%" />
+
+                                        {/* Transform Origin Indicator */}
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                top: `${(element.transformOriginY || 0.5) * 100}%`,
+                                                left: `${(element.transformOriginX || 0.5) * 100}%`,
+                                                width: 8,
+                                                height: 8,
+                                                backgroundColor: 'white',
+                                                border: '1px solid black',
+                                                borderRadius: '50%',
+                                                transform: 'translate(-50%, -50%)',
+                                                zIndex: 1000,
+                                                pointerEvents: 'none',
+                                            }}
+                                        />
+                                    </Box>
                                 </Box>
                             ))}
                     </Box>
