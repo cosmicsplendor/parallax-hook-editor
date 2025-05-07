@@ -354,14 +354,14 @@ export const ElementPanel: React.FC = () => {
                   value={selectedElement.initialRotation}
                   onChange={(val) => handlePropertyChange('initialRotation', val)}
                   step={1}
-                  min={0} max={360}
+                  min={-180} max={180}
                 />
                 <SliderInput
                   label="Final Rotation"
                   value={selectedElement.finalRotation}
                   onChange={(val) => handlePropertyChange('finalRotation', val)}
                   step={1}
-                  min={0} max={360}
+                  min={-180} max={180}
                 />
                 <SliderInput
                   label="Transform Origin X"
