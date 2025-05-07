@@ -6,12 +6,19 @@ module.exports = [
     // Typescript loader
     test: /\.tsx?$/,
     exclude: /(node_modules|\.webpack)/,
-    use: {
-      loader: 'ts-loader',
-      options: {
-        transpileOnly: true,
+    use: [
+      {
+        loader: 'babel-loader',
+        options: {
+          plugins: [inDev() && require.resolve('react-refresh/babel')].filter(Boolean),
+          presets: [
+            '@babel/preset-env',
+            '@babel/preset-react',
+            '@babel/preset-typescript',
+          ],
+        },
       },
-    },
+    ],
   },
   {
     // CSS Loader
@@ -40,7 +47,6 @@ module.exports = [
   },
   {
     // Assets loader
-    // More information here https://webpack.js.org/guides/asset-modules/
     test: /\.(gif|jpe?g|tiff|png|webp|bmp|svg|eot|ttf|woff|woff2)$/i,
     type: 'asset',
     generator: {

@@ -17,6 +17,11 @@ module.exports = {
   devtool: 'cheap-module-source-map',
   devServer: {
     open: true,
+    hot: true, // Enable Hot Module Replacement
+    historyApiFallback: true,
+    client: {
+      overlay: true,
+    },
   },
   optimization: {
     splitChunks: {

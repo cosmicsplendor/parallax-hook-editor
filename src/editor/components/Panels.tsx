@@ -360,13 +360,13 @@ export const ElementPanel: React.FC = () => {
                   step={1}
                 />
                 <SliderInput
-                  label="Transform Origin X (0-1)"
+                  label="Transform Origin X"
                   value={selectedElement.transformOriginX}
                   onChange={(val) => handlePropertyChange('transformOriginX', val)}
                   min={0} max={1} step={0.01}
                 />
                 <SliderInput
-                  label="Transform Origin Y (0-1)"
+                  label="Transform Origin Y"
                   value={selectedElement.transformOriginY}
                   onChange={(val) => handlePropertyChange('transformOriginY', val)}
                   min={0} max={1} step={0.01}
@@ -385,7 +385,7 @@ export const ElementPanel: React.FC = () => {
                 </FormControl>
                 <Divider>Layering</Divider>
                 <NumberInput
-                  label="Z-Index (within layer)"
+                  label="Z-Index "
                   value={selectedElement.zIndex}
                   onChange={(val) => handlePropertyChange('zIndex', val)}
                   step={1}
