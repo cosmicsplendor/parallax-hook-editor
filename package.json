@@ -1,7 +1,7 @@
 {
   "name": "react-webpack-typescript-2023",
   "version": "2.0.0",
-  "description": "Minimal boilerplate for writing Web Applications using React, Webpack, TypeScript with best practices",
+  "description": "Parallax editor for remotion",
   "license": "MIT",
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack serve --config tools/webpack/webpack.config.dev.js",
@@ -15,6 +15,7 @@
     "@types/node": "^18.11.5",
     "@types/react": "^18.0.23",
     "@types/react-dom": "^18.0.7",
+    "@types/uuid": "^10.0.0",
     "@types/webpack-env": "^1.18.0",
     "@typescript-eslint/eslint-plugin": "^5.41.0",
     "@typescript-eslint/parser": "^5.41.0",
@@ -42,8 +43,16 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^7.1.0",
+    "@remotion/player": "^4.0.298",
     "@svgr/webpack": "^8.1.0",
+    "immer": "^10.1.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "remotion": "^4.0.298",
+    "styled-components": "^6.1.17",
+    "uuid": "^11.1.0"
   }
 }
