@@ -18,47 +18,6 @@ const WorkspacePreview: React.FC = () => {
     const cameraX = camera.initialX;
     const cameraY = camera.initialY;
     const cameraZoom = camera.initialZoom;
-    const handleDragStop = (
-        e: DraggableEvent,
-        data: DraggableData,
-        layerId: string,
-        elementId: string
-    ) => {
-        // data.x and data.y are the new positions relative to the element's starting point in the DOM.
-        // We need to find the element's original state.x, state.y and add data.deltaX, data.deltaY
-        // Or, if bounds are set carefully, data.x and data.y might directly map.
-        // For simplicity here, assuming react-draggable gives positions that can be directly used
-        // if the parent element of Draggable is the layer itself (after its parallax offset).
-        // However, direct update of data.x and data.y is simpler for uncontrolled components.
-        // For controlled components, we need to update the source of truth (our state).
-
-        const layer = state.layers.find(l => l.id === layerId);
-        const element = layer?.elements.find(el => el.id === elementId);
-        if (element) {
-            // The x and y from Draggable are relative to its offsetParent.
-            // We need to adjust for camera zoom if we want the state x/y to be "world" coordinates.
-            // For simplicity, this example directly updates x and y based on drag.
-            // Consider how `cameraZoom` affects pixel values vs. world units.
-            // If element.x/y are "world" units, then the delta from draggable should be scaled.
-            // deltaX_world = data.deltaX / cameraZoom
-            // newX = element.x + data.deltaX / cameraZoom (if draggable is on the scaled element)
-            // OR if draggable is on an unscaled container whose children are scaled:
-            // newX = element.x + data.deltaX
-            // Let's assume element.x/y are coordinates within the layer's unscaled space for editor manipulation.
-
-            dispatch({
-                type: 'UPDATE_ELEMENT_PROPERTIES',
-                payload: {
-                    layerId,
-                    elementId,
-                    properties: {
-                        x: element.x + data.deltaX, // Draggable reports delta
-                        y: element.y + data.deltaY,
-                    }
-                }
-            });
-        }
-    };
     return (
         <Paper
             elevation={1}
