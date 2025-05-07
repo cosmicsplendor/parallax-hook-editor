@@ -75,7 +75,7 @@ const WorkspacePreview: React.FC = () => {
                                             position: 'relative', // Ensure the transform origin indicator is positioned correctly
                                             width: '100%',
                                             height: '100%',
-                                            transformOrigin: `${(element.transformOriginX || 0.5) * 100}% ${(element.transformOriginY || 0.5) * 100}%`,
+                                            transformOrigin: `${(element.transformOriginX ?? 0.5) * 100}% ${(element.transformOriginY ?? 0.5) * 100}%`,
                                             transform: `scale(${element.scale * cameraZoom}) rotate(${element.initialRotation}deg)`,
                                         }}
                                     >
