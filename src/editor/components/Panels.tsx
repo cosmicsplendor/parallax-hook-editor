@@ -197,36 +197,42 @@ export const ElementPanel: React.FC = () => {
       alert("Please select a layer first!");
       return;
     }
-    const file = event.target.files?.[0];
-    if (file && file.type === "image/svg+xml") {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const svgString = e.target?.result as string;
-        let width = 100;
-        let height = 100;
-        const widthMatch = svgString.match(/width="([^"]+)"/);
-        const heightMatch = svgString.match(/height="([^"]+)"/);
-        if (widthMatch?.[1]) width = parseFloat(widthMatch[1]);
-        if (heightMatch?.[1]) height = parseFloat(heightMatch[1]);
+    
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    
+    // Process each selected SVG file
+    Array.from(files).forEach(file => {
+      if (file.type === "image/svg+xml") {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const svgString = e.target?.result as string;
+          let width = 100;
+          let height = 100;
+          const widthMatch = svgString.match(/width="([^"]+)"/);
+          const heightMatch = svgString.match(/height="([^"]+)"/);
+          if (widthMatch?.[1]) width = parseFloat(widthMatch[1]);
+          if (heightMatch?.[1]) height = parseFloat(heightMatch[1]);
 
-        // Ensure base properties are set for Omit to work correctly
-        const newElementBase: Omit<SVGElementData, 'id' | 'initialRotation' | 'finalRotation' | 'transformOriginX' | 'transformOriginY' | 'rotationAnimationType' | 'zIndex'> & Partial<Pick<SVGElementData, 'initialRotation' | 'finalRotation' | 'transformOriginX' | 'transformOriginY' | 'rotationAnimationType' | 'zIndex'>> = {
-          name: file.name,
-          svgString,
-          x: 0,
-          y: 0,
-          scale: 1,
-          opacity: 1,
-          // rotation: 0, // Removed as it's now initial/final
-          width,
-          height,
+          // Ensure base properties are set for Omit to work correctly
+          const newElementBase: Omit<SVGElementData, 'id' | 'initialRotation' | 'finalRotation' | 'transformOriginX' | 'transformOriginY' | 'rotationAnimationType' | 'zIndex'> & Partial<Pick<SVGElementData, 'initialRotation' | 'finalRotation' | 'transformOriginX' | 'transformOriginY' | 'rotationAnimationType' | 'zIndex'>> = {
+            name: file.name,
+            svgString,
+            x: 0,
+            y: 0,
+            scale: 1,
+            opacity: 1,
+            width,
+            height,
+          };
+          dispatch({ type: 'ADD_ELEMENT_TO_LAYER', payload: { layerId: selectedLayerId, element: newElementBase as Omit<SVGElementData, 'id'> } });
         };
-        dispatch({ type: 'ADD_ELEMENT_TO_LAYER', payload: { layerId: selectedLayerId, element: newElementBase as Omit<SVGElementData, 'id'> } });
-      };
-      reader.readAsText(file);
-    } else {
-      alert("Please select an SVG file.");
-    }
+        reader.readAsText(file);
+      } else {
+        console.warn(`File ${file.name} is not an SVG and was skipped.`);
+      }
+    });
+    
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -266,7 +272,7 @@ export const ElementPanel: React.FC = () => {
           disabled={!selectedLayerId}
         >
           Add SVG
-          <input type="file" hidden accept=".svg" onChange={handleFileChange} ref={fileInputRef} />
+          <input type="file" hidden accept=".svg" onChange={handleFileChange} ref={fileInputRef} multiple />
         </Button>
       </Stack>
       {!selectedLayerId && <Typography variant="caption">Select a layer to add or manage elements.</Typography>}
@@ -308,7 +314,7 @@ export const ElementPanel: React.FC = () => {
               ))}
           </List>
           {selectedElement && (
-            <Box mt={2} p={2} border={1} borderColor="divider" borderRadius={1} sx={{ maxHeight: 'calc(100vh - 450px)', overflowY: 'auto' }}> {/* Adjust maxHeight as needed */}
+            <Box mt={2} p={2} border={1} borderColor="divider" borderRadius={1} sx={{ maxHeight: 'calc(100vh - 450px)', overflowY: 'auto' }}>
               <Typography variant="subtitle1" gutterBottom>Edit: {selectedElement.name}</Typography>
               <Stack spacing={2}>
                 <TextInput
@@ -340,7 +346,6 @@ export const ElementPanel: React.FC = () => {
                   onChange={(val) => handlePropertyChange('opacity', val)}
                   min={0} max={1} step={0.01}
                 />
-                {/* Old rotation removed, new rotation properties below */}
                 <Divider>Rotation & Transform</Divider>
                 <NumberInput
                   label="Initial Rotation (°)"
