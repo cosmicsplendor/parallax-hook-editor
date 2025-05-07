@@ -2,7 +2,6 @@
 import React, { useContext } from 'react';
 import { Box, Grid, Button, Typography, Paper, Stack } from '@mui/material';
 import { Player } from '@remotion/player';
-import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import { ParallaxEditorContext, defaultEditorState } from './context/ParallaxEditorContext';
 import { ParallaxComposition } from '../remotion/ParallaxComposition'; // We'll create this
 import { GlobalSettingsPanel, CameraPanel, LayerPanel, ElementPanel } from './components/Panels';
@@ -96,56 +95,41 @@ const WorkspacePreview: React.FC = () => {
                         {[...(layer.elements || [])] // Ensure elements array exists
                             .sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0)) // Sort elements by zIndex
                             .map(element => (
-                                <Draggable
-                                    key={element.id}
-                                    position={{ x: element.x, y: element.y }} // Controlled position
-                                    onStop={(e, data) => handleDragStop(e, data, layer.id, element.id)}
-                                    disabled={layer.id !== selectedLayerId || element.id !== selectedElementId} // Only drag selected element
-                                    bounds="parent" // Constrain dragging within the layer's visible area in editor
+                                <Box
+                                key={element.id}
+                                sx={{
+                                position: 'absolute',
+                                // Position relative to layer center, then offset by element's X/Y
+                                // Then viewport center is (width/2, height/2)
+                                left: `calc(50% + ${element.x}px)`,
+                                top: `calc(50% + ${element.y}px)`,
+                                width: element.width * element.scale, // Apply scale to intrinsic size
+                                height: element.height * element.scale,
+                                opacity: element.opacity,
+                                transformOrigin: 'center center',
+                                transform: `translate(-50%, -50%) scale(${cameraZoom}) rotate(${element.initialRotation}deg)`, // Element's own transform
+                                outline: element.id === selectedElementId && layer.id === selectedLayerId ? '1px dashed red' : 'none',
+                                }}
                                 >
-                                    <Box
-                                        sx={{
-                                            width: element.width * element.scale, // Apply scale to intrinsic size
-                                            height: element.height * element.scale,
-                                            opacity: element.opacity,
-                                            transformOrigin: `${element.transformOriginX * 100}% ${element.transformOriginY * 100}%`,
-                                            transform: `scale(${cameraZoom}) rotate(${element.initialRotation}deg)`,
-                                            outline: element.id === selectedElementId && layer.id === selectedLayerId ? '1px dashed red' : 'none',
-                                            cursor: (layer.id === selectedLayerId && element.id === selectedElementId) ? 'grab' : 'default',
-                                            zIndex: element.zIndex,
-                                            position: 'absolute',
-                                            left: `calc(50%)`, // Centered in parent initially by Draggable
-                                            top: `calc(50%)`,  // Centered in parent initially by Draggable
-                                        }}
-                                    >
-                                        <Box
-                                            sx={{
-                                                position: 'relative',
-                                                width: '100%',
-                                                height: '100%',
-                                                transformOrigin: `${element.transformOriginX * 100}% ${element.transformOriginY * 100}%`,
-                                                transform: `scale(${element.scale * cameraZoom}) rotate(${element.initialRotation}deg)`,
-                                            }}
-                                        >
-                                            <SVGViewer svgString={element.svgString} width="100%" height="100%" />
-                                            {/* Transform Origin Indicator with counter-scale */}
-                                            <Box
-                                                sx={{
-                                                    position: 'absolute',
-                                                    top: `${element.transformOriginY * 100}%`,
-                                                    left: `${element.transformOriginX * 100}%`,
-                                                    width: 8,
-                                                    height: 8,
-                                                    backgroundColor: 'white',
-                                                    border: '1px solid black',
-                                                    borderRadius: '50%',
-                                                    // Cancel out parent's scale so the indicator remains a constant size:
-                                                    transform: `translate(-50%, -50%) scale(${1 / (element.scale * cameraZoom)})`,
-                                                }}
-                                            />
-                                        </Box>
-                                    </Box>
-                                </Draggable>
+                                <SVGViewer svgString={element.svgString} width="100%" height="100%" />
+                                
+                                {/* Transform origin indicator - rendered on top of SVG */}
+                                <Box
+                                    sx={{
+                                        position: 'absolute',
+                                        left: '50%',
+                                        top: '50%',
+                                        width: '8px',
+                                        height: '8px',
+                                        borderRadius: '50%',
+                                        backgroundColor: 'white',
+                                        border: '1px solid black',
+                                        transform: `translate(-50%, -50%) scale(${1/cameraZoom})`, // Counter the camera zoom to keep size consistent
+                                        zIndex: 1000, // Ensure it's on top
+                                        pointerEvents: 'none', // Don't interfere with clicking
+                                    }}
+                                />
+                                </Box>
                             ))}
                     </Box>
                 );
