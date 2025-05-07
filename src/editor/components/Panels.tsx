@@ -197,10 +197,10 @@ export const ElementPanel: React.FC = () => {
       alert("Please select a layer first!");
       return;
     }
-    
+
     const files = event.target.files;
     if (!files || files.length === 0) return;
-    
+
     // Process each selected SVG file
     Array.from(files).forEach(file => {
       if (file.type === "image/svg+xml") {
@@ -232,7 +232,7 @@ export const ElementPanel: React.FC = () => {
         console.warn(`File ${file.name} is not an SVG and was skipped.`);
       }
     });
-    
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -322,17 +322,19 @@ export const ElementPanel: React.FC = () => {
                   value={selectedElement.name}
                   onChange={(val) => handlePropertyChange('name', val)}
                 />
-                <NumberInput
+                <SliderInput
                   label="X"
                   value={selectedElement.x}
                   onChange={(val) => handlePropertyChange('x', val)}
-                  step={1}
+                  step={2}
+                  min={-400} max={400}
                 />
-                <NumberInput
+                <SliderInput
                   label="Y"
                   value={selectedElement.y}
                   onChange={(val) => handlePropertyChange('y', val)}
-                  step={1}
+                  step={2}
+                  min={-400} max={400}
                 />
                 <SliderInput
                   label="Scale"
@@ -347,17 +349,19 @@ export const ElementPanel: React.FC = () => {
                   min={0} max={1} step={0.01}
                 />
                 <Divider>Rotation & Transform</Divider>
-                <NumberInput
-                  label="Initial Rotation (°)"
+                <SliderInput
+                  label="Initial Rotation"
                   value={selectedElement.initialRotation}
                   onChange={(val) => handlePropertyChange('initialRotation', val)}
                   step={1}
+                  min={0} max={360}
                 />
-                <NumberInput
-                  label="Final Rotation (°)"
+                <SliderInput
+                  label="Final Rotation"
                   value={selectedElement.finalRotation}
                   onChange={(val) => handlePropertyChange('finalRotation', val)}
                   step={1}
+                  min={0} max={360}
                 />
                 <SliderInput
                   label="Transform Origin X"
