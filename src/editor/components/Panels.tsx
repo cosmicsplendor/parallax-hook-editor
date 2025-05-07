@@ -1,12 +1,13 @@
 // src/editor/components/Panels.tsx
 import React, { useContext, useRef } from 'react';
 import {
-  Box, Button, Stack, Typography, Paper, Divider, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction, ListItemButton
+  Box, Button, Stack, Typography, Paper, Divider, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction, ListItemButton,
+  Select, MenuItem, FormControl, InputLabel
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon, ArrowUpward, ArrowDownward } from '@mui/icons-material';
 import { ParallaxEditorContext } from '../context/ParallaxEditorContext';
 import { NumberInput, TextInput, SliderInput, SwitchInput } from './PropertyInputs';
-import { SVGElementData, LayerData } from '../types';
+import { SVGElementData, AnimationType } from '../types';
 import { SVGViewer } from './SVGViewer';
 
 // --- Global Settings Panel ---
@@ -47,13 +48,13 @@ export const GlobalSettingsPanel: React.FC = () => {
           min={1}
         />
         <Stack direction="row" spacing={1} alignItems="center">
-            <Typography variant="caption">Background Color:</Typography>
-            <input
-                type="color"
-                value={state.backgroundColor}
-                onChange={(e) => dispatch({ type: 'UPDATE_GLOBAL_SETTINGS', payload: { backgroundColor: e.target.value }})}
-                style={{marginLeft: '8px'}}
-            />
+          <Typography variant="caption">Background Color:</Typography>
+          <input
+            type="color"
+            value={state.backgroundColor}
+            onChange={(e) => dispatch({ type: 'UPDATE_GLOBAL_SETTINGS', payload: { backgroundColor: e.target.value } })}
+            style={{ marginLeft: '8px' }}
+          />
         </Stack>
       </Stack>
     </Paper>
@@ -74,14 +75,14 @@ export const CameraPanel: React.FC = () => {
       <Typography variant="h6" gutterBottom>Camera</Typography>
       <Stack spacing={2}>
         <Typography variant="subtitle2">Initial State</Typography>
-        <NumberInput label="Initial X" value={camera.initialX} onChange={(v) => handleChange('initialX', v)} step={10}/>
-        <NumberInput label="Initial Y" value={camera.initialY} onChange={(v) => handleChange('initialY', v)} step={10}/>
+        <NumberInput label="Initial X" value={camera.initialX} onChange={(v) => handleChange('initialX', v)} step={10} />
+        <NumberInput label="Initial Y" value={camera.initialY} onChange={(v) => handleChange('initialY', v)} step={10} />
         <SliderInput label="Initial Zoom" value={camera.initialZoom} onChange={(v) => handleChange('initialZoom', v)} min={0.1} max={5} step={0.01} />
 
         <Divider sx={{ my: 2 }} />
         <Typography variant="subtitle2">Final State</Typography>
-        <NumberInput label="Final X" value={camera.finalX} onChange={(v) => handleChange('finalX', v)} step={10}/>
-        <NumberInput label="Final Y" value={camera.finalY} onChange={(v) => handleChange('finalY', v)} step={10}/>
+        <NumberInput label="Final X" value={camera.finalX} onChange={(v) => handleChange('finalX', v)} step={10} />
+        <NumberInput label="Final Y" value={camera.finalY} onChange={(v) => handleChange('finalY', v)} step={10} />
         <SliderInput label="Final Zoom" value={camera.finalZoom} onChange={(v) => handleChange('finalZoom', v)} min={0.1} max={5} step={0.01} />
       </Stack>
     </Paper>
@@ -132,11 +133,11 @@ export const LayerPanel: React.FC = () => {
                 <IconButton size="small" onClick={() => handleMoveLayer(index, 'up')} disabled={index === 0}>
                   <ArrowUpward fontSize="inherit" />
                 </IconButton>
-                <IconButton size="small" onClick={() => handleMoveLayer(index, 'down')} disabled={index === layers.length -1}>
+                <IconButton size="small" onClick={() => handleMoveLayer(index, 'down')} disabled={index === layers.length - 1}>
                   <ArrowDownward fontSize="inherit" />
                 </IconButton>
                 <IconButton edge="end" aria-label="delete" onClick={(e) => handleRemoveLayer(layer.id, e)} size="small">
-                  <DeleteIcon fontSize="inherit"/>
+                  <DeleteIcon fontSize="inherit" />
                 </IconButton>
               </Stack>
             </ListItemSecondaryAction>
@@ -164,7 +165,7 @@ export const LayerPanel: React.FC = () => {
               onChange={(val) => dispatch({ type: 'UPDATE_LAYER_PROPERTIES', payload: { layerId: selectedLayer.id, properties: { parallaxFactor: { ...selectedLayer.parallaxFactor, y: val } } } })}
               step={0.01}
             />
-             <NumberInput
+            <NumberInput
               label="Z-Index (manual)"
               value={selectedLayer.zIndex}
               onChange={(val) => dispatch({ type: 'UPDATE_LAYER_PROPERTIES', payload: { layerId: selectedLayer.id, properties: { zIndex: val } } })}
@@ -201,7 +202,6 @@ export const ElementPanel: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const svgString = e.target?.result as string;
-        // Attempt to get width/height from SVG (basic parsing)
         let width = 100;
         let height = 100;
         const widthMatch = svgString.match(/width="([^"]+)"/);
@@ -209,26 +209,26 @@ export const ElementPanel: React.FC = () => {
         if (widthMatch?.[1]) width = parseFloat(widthMatch[1]);
         if (heightMatch?.[1]) height = parseFloat(heightMatch[1]);
 
-        const newElement: Omit<SVGElementData, 'id'> = {
+        // Ensure base properties are set for Omit to work correctly
+        const newElementBase: Omit<SVGElementData, 'id' | 'initialRotation' | 'finalRotation' | 'transformOriginX' | 'transformOriginY' | 'rotationAnimationType' | 'zIndex'> & Partial<Pick<SVGElementData, 'initialRotation' | 'finalRotation' | 'transformOriginX' | 'transformOriginY' | 'rotationAnimationType' | 'zIndex'>> = {
           name: file.name,
           svgString,
           x: 0,
           y: 0,
           scale: 1,
           opacity: 1,
-          rotation: 0,
+          // rotation: 0, // Removed as it's now initial/final
           width,
           height,
         };
-        dispatch({ type: 'ADD_ELEMENT_TO_LAYER', payload: { layerId: selectedLayerId, element: newElement } });
+        dispatch({ type: 'ADD_ELEMENT_TO_LAYER', payload: { layerId: selectedLayerId, element: newElementBase as Omit<SVGElementData, 'id'> } });
       };
       reader.readAsText(file);
     } else {
       alert("Please select an SVG file.");
     }
-    // Reset file input
     if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+      fileInputRef.current.value = "";
     }
   };
 
@@ -236,83 +236,153 @@ export const ElementPanel: React.FC = () => {
   const handleRemoveElement = (elementId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (selectedLayerId) {
-        dispatch({ type: 'REMOVE_ELEMENT', payload: { layerId: selectedLayerId, elementId } });
+      dispatch({ type: 'REMOVE_ELEMENT', payload: { layerId: selectedLayerId, elementId } });
     }
   };
+
+  const handlePropertyChange = (propName: keyof SVGElementData, value: any) => {
+    if (selectedLayer && selectedElement) {
+      dispatch({
+        type: 'UPDATE_ELEMENT_PROPERTIES',
+        payload: {
+          layerId: selectedLayer.id,
+          elementId: selectedElement.id,
+          properties: { [propName]: value }
+        }
+      });
+    }
+  };
+
 
   return (
     <Paper elevation={2} sx={{ p: 2, mt: 2 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
         <Typography variant="h6">Elements</Typography>
         <Button
-            variant="contained"
-            size="small"
-            component="label"
-            startIcon={<AddIcon />}
-            disabled={!selectedLayerId}
+          variant="contained"
+          size="small"
+          component="label"
+          startIcon={<AddIcon />}
+          disabled={!selectedLayerId}
         >
-            Add SVG
-            <input type="file" hidden accept=".svg" onChange={handleFileChange} ref={fileInputRef} />
+          Add SVG
+          <input type="file" hidden accept=".svg" onChange={handleFileChange} ref={fileInputRef} />
         </Button>
       </Stack>
       {!selectedLayerId && <Typography variant="caption">Select a layer to add or manage elements.</Typography>}
       {selectedLayer && (
         <>
           <List dense sx={{ maxHeight: 200, overflow: 'auto', mb: 2 }}>
-            {selectedLayer.elements.map(el => (
-              <ListItem key={el.id} disablePadding>
-                <ListItemButton
-                  selected={el.id === selectedElementId}
-                  onClick={() => handleSelectElement(el.id)}
+            {[...(selectedLayer.elements || [])]
+              .sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0))
+              .map(el => (
+                <ListItem
+                  key={el.id}
+                  disablePadding
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={(e) => handleRemoveElement(el.id, e)}
+                      size="small"
+                    >
+                      <DeleteIcon fontSize="inherit" />
+                    </IconButton>
+                  }
                 >
-                  <SVGViewer svgString={el.svgString} width={24} height={24} style={{ marginRight: 8 }} />
-                  <ListItemText primary={el.name.length > 15 ? el.name.substring(0, 12) + '...' : el.name} />
-                </ListItemButton>
-                <ListItemSecondaryAction>
-                  <IconButton edge="end" aria-label="delete" onClick={(e) => handleRemoveElement(el.id, e)} size="small">
-                    <DeleteIcon fontSize="inherit" />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
+                  <ListItemButton
+                    selected={el.id === selectedElementId}
+                    onClick={() => handleSelectElement(el.id)}
+                  >
+                    <SVGViewer
+                      svgString={el.svgString}
+                      width={24}
+                      height={24}
+                      style={{ marginRight: '8px' }}
+                    />
+                    <ListItemText
+                      primary={`${el.name.length > 12 ? el.name.substring(0, 9) + '...' : el.name} (Z: ${el.zIndex === undefined ? 'N/A' : el.zIndex})`}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
           </List>
           {selectedElement && (
-            <Box mt={2} p={2} border={1} borderColor="divider" borderRadius={1}>
+            <Box mt={2} p={2} border={1} borderColor="divider" borderRadius={1} sx={{ maxHeight: 'calc(100vh - 450px)', overflowY: 'auto' }}> {/* Adjust maxHeight as needed */}
               <Typography variant="subtitle1" gutterBottom>Edit: {selectedElement.name}</Typography>
               <Stack spacing={2}>
                 <TextInput
                   label="Name"
                   value={selectedElement.name}
-                  onChange={(val) => dispatch({ type: 'UPDATE_ELEMENT_PROPERTIES', payload: { layerId: selectedLayer.id, elementId: selectedElement.id, properties: { name: val } } })}
+                  onChange={(val) => handlePropertyChange('name', val)}
                 />
                 <NumberInput
                   label="X"
                   value={selectedElement.x}
-                  onChange={(val) => dispatch({ type: 'UPDATE_ELEMENT_PROPERTIES', payload: { layerId: selectedLayer.id, elementId: selectedElement.id, properties: { x: val } } })}
+                  onChange={(val) => handlePropertyChange('x', val)}
                   step={1}
                 />
                 <NumberInput
                   label="Y"
                   value={selectedElement.y}
-                  onChange={(val) => dispatch({ type: 'UPDATE_ELEMENT_PROPERTIES', payload: { layerId: selectedLayer.id, elementId: selectedElement.id, properties: { y: val } } })}
+                  onChange={(val) => handlePropertyChange('y', val)}
                   step={1}
                 />
                 <SliderInput
                   label="Scale"
                   value={selectedElement.scale}
-                  onChange={(val) => dispatch({ type: 'UPDATE_ELEMENT_PROPERTIES', payload: { layerId: selectedLayer.id, elementId: selectedElement.id, properties: { scale: val } } })}
+                  onChange={(val) => handlePropertyChange('scale', val)}
                   min={0.01} max={10} step={0.01}
                 />
                 <SliderInput
                   label="Opacity"
                   value={selectedElement.opacity}
-                  onChange={(val) => dispatch({ type: 'UPDATE_ELEMENT_PROPERTIES', payload: { layerId: selectedLayer.id, elementId: selectedElement.id, properties: { opacity: val } } })}
+                  onChange={(val) => handlePropertyChange('opacity', val)}
                   min={0} max={1} step={0.01}
                 />
+                {/* Old rotation removed, new rotation properties below */}
+                <Divider>Rotation & Transform</Divider>
                 <NumberInput
-                  label="Rotation"
-                  value={selectedElement.rotation}
-                  onChange={(val) => dispatch({ type: 'UPDATE_ELEMENT_PROPERTIES', payload: { layerId: selectedLayer.id, elementId: selectedElement.id, properties: { rotation: val } } })}
+                  label="Initial Rotation (°)"
+                  value={selectedElement.initialRotation}
+                  onChange={(val) => handlePropertyChange('initialRotation', val)}
+                  step={1}
+                />
+                <NumberInput
+                  label="Final Rotation (°)"
+                  value={selectedElement.finalRotation}
+                  onChange={(val) => handlePropertyChange('finalRotation', val)}
+                  step={1}
+                />
+                <SliderInput
+                  label="Transform Origin X (0-1)"
+                  value={selectedElement.transformOriginX}
+                  onChange={(val) => handlePropertyChange('transformOriginX', val)}
+                  min={0} max={1} step={0.01}
+                />
+                <SliderInput
+                  label="Transform Origin Y (0-1)"
+                  value={selectedElement.transformOriginY}
+                  onChange={(val) => handlePropertyChange('transformOriginY', val)}
+                  min={0} max={1} step={0.01}
+                />
+                <FormControl fullWidth size="small">
+                  <InputLabel id="rotation-anim-type-label">Rotation Animation</InputLabel>
+                  <Select
+                    labelId="rotation-anim-type-label"
+                    label="Rotation Animation"
+                    value={selectedElement.rotationAnimationType}
+                    onChange={(e) => handlePropertyChange('rotationAnimationType', e.target.value as AnimationType)}
+                  >
+                    <MenuItem value="easing">Easing</MenuItem>
+                    <MenuItem value="spring">Spring</MenuItem>
+                  </Select>
+                </FormControl>
+                <Divider>Layering</Divider>
+                <NumberInput
+                  label="Z-Index (within layer)"
+                  value={selectedElement.zIndex}
+                  onChange={(val) => handlePropertyChange('zIndex', val)}
                   step={1}
                 />
               </Stack>

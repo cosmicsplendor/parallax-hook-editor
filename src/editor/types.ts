@@ -1,17 +1,27 @@
 // src/editor/types.ts
 import { CompositionProps } from 'remotion';
 
+export type AnimationType = 'easing' | 'spring';
+
 export interface SVGElementData {
   id: string;
   name: string;
-  svgString: string; // Actual SVG content as a string
-  x: number; // Position relative to layer center
+  svgString: string;
+  x: number;
   y: number;
   scale: number;
   opacity: number;
-  rotation: number;
-  width: number; // Original width from SVG (can be extracted or set manually)
-  height: number; // Original height from SVG
+  // rotation: number; // This will now be derived from initial/final for animation
+  width: number;
+  height: number;
+
+  // New properties for Feature 1 & 3
+  initialRotation: number;    // Degrees
+  finalRotation: number;      // Degrees
+  transformOriginX: number;   // Normalized 0-1 (default 0.5)
+  transformOriginY: number;   // Normalized 0-1 (default 0.5)
+  rotationAnimationType: AnimationType; // Easing or Spring
+  zIndex: number;             // For sorting within the layer
 }
 
 export interface LayerData {

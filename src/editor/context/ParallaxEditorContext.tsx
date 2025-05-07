@@ -2,7 +2,7 @@
 import React, { createContext, useReducer, Dispatch, ReactNode } from 'react';
 import { produce } from 'immer';
 import { v4 as uuidv4 } from 'uuid';
-import { EditorState, LayerData, SVGElementData, CameraConfig, ParallaxConfig } from '../types';
+import { EditorState, LayerData, SVGElementData, CameraConfig, ParallaxConfig, AnimationType } from '../types';
 
 type Action =
   | { type: 'SET_INITIAL_STATE'; payload: ParallaxConfig }
@@ -92,6 +92,12 @@ const reducer = produce((draft: EditorState, action: Action) => {
       if (layer) {
         const newElement: SVGElementData = {
           id: uuidv4(),
+          initialRotation: 0,
+          finalRotation: 0,
+          transformOriginX: 0.5,
+          transformOriginY: 0.5,
+          rotationAnimationType: 'easing',
+          zIndex: layer.elements.length, // Def
           ...action.payload.element,
         };
         layer.elements.push(newElement);

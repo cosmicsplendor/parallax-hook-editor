@@ -52,6 +52,7 @@
     "immer": "^10.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.6",
     "remotion": "^4.0.298",
     "styled-components": "^6.1.17",
     "uuid": "^11.1.0"
