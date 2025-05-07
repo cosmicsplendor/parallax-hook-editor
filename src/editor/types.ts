@@ -50,4 +50,4 @@ export interface EditorState extends ParallaxConfig {
 }
 
 // For Remotion Composition props
-export interface MyCompositionProps extends CompositionProps, ParallaxConfig {}
+export type MyCompositionProps = CompositionProps<ParallaxConfig, any>

@@ -2,7 +2,7 @@
 import React, { createContext, useReducer, Dispatch, ReactNode } from 'react';
 import { produce } from 'immer';
 import { v4 as uuidv4 } from 'uuid';
-import { EditorState, LayerData, SVGElementData, CameraConfig, ParallaxConfig } from './types';
+import { EditorState, LayerData, SVGElementData, CameraConfig, ParallaxConfig } from '../types';
 
 type Action =
   | { type: 'SET_INITIAL_STATE'; payload: ParallaxConfig }
@@ -100,9 +100,9 @@ const reducer = produce((draft: EditorState, action: Action) => {
       break;
     }
     case 'REMOVE_ELEMENT': {
-      const layer = draft.layers.find((l: LayerData) => l.id === action.payload.layerId);
+      const layer = draft.layers.find(l => l.id === action.payload.layerId);
       if (layer) {
-        layer.elements = layer.elements.filter((el: any) => el.id !== action.payload.elementId);
+        layer.elements = layer.elements.filter(el => el.id !== action.payload.elementId);
         if (draft.selectedElementId === action.payload.elementId) {
           draft.selectedElementId = null;
         }
@@ -110,9 +110,9 @@ const reducer = produce((draft: EditorState, action: Action) => {
       break;
     }
     case 'UPDATE_ELEMENT_PROPERTIES': {
-      const layer = draft.layers.find((l: LayerData) => l.id === action.payload.layerId);
+      const layer = draft.layers.find(l => l.id === action.payload.layerId);
       if (layer) {
-        const element = layer.elements.find((el: any) => el.id === action.payload.elementId);
+        const element = layer.elements.find(el => el.id === action.payload.elementId);
         if (element) {
           Object.assign(element, action.payload.properties);
         }
@@ -129,7 +129,7 @@ const reducer = produce((draft: EditorState, action: Action) => {
       const [movedLayer] = draft.layers.splice(oldIndex, 1);
       draft.layers.splice(newIndex, 0, movedLayer);
       // Update zIndex based on new order (lower index = lower zIndex visually, but higher zIndex in CSS for stacking)
-      draft.layers.forEach((layer: LayerData, index: number) => {
+      draft.layers.forEach((layer, index) => {
         layer.zIndex = index;
       });
       break;
@@ -139,7 +139,7 @@ const reducer = produce((draft: EditorState, action: Action) => {
   }
 });
 
-const ParallaxEditorProvider = ({ children }: { children: ReactNode }) => {
+const ParallaxEditorProvider = ({ children }: { children: ReactNode }): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialState);
   return (
     <ParallaxEditorContext.Provider value={{ state, dispatch }}>

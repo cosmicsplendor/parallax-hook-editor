@@ -33,6 +33,7 @@
     "less-loader": "11.1.0",
     "mini-css-extract-plugin": "^2.6.1",
     "react-refresh": "^0.14.0",
+    "sass": "^1.55.0",
     "serve": "^14.0.1",
     "style-loader": "^3.3.1",
     "ts-loader": "9.4.1",
@@ -44,6 +45,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "@remotion/player": "^4.0.298",
     "@svgr/webpack": "^8.1.0",
