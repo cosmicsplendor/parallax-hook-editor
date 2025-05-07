@@ -120,7 +120,7 @@ const WorkspacePreview: React.FC = () => {
                                     >
                                         <Box
                                             sx={{
-                                                position: 'relative', // Ensure the transform origin indicator is positioned correctly
+                                                position: 'relative',
                                                 width: '100%',
                                                 height: '100%',
                                                 transformOrigin: `${element.transformOriginX * 100}% ${element.transformOriginY * 100}%`,
@@ -128,7 +128,7 @@ const WorkspacePreview: React.FC = () => {
                                             }}
                                         >
                                             <SVGViewer svgString={element.svgString} width="100%" height="100%" />
-                                            {/* Transform Origin Indicator */}
+                                            {/* Transform Origin Indicator with counter-scale */}
                                             <Box
                                                 sx={{
                                                     position: 'absolute',
@@ -139,7 +139,8 @@ const WorkspacePreview: React.FC = () => {
                                                     backgroundColor: 'white',
                                                     border: '1px solid black',
                                                     borderRadius: '50%',
-                                                    transform: 'translate(-50%, -50%)',
+                                                    // Cancel out parent's scale so the indicator remains a constant size:
+                                                    transform: `translate(-50%, -50%) scale(${1 / (element.scale * cameraZoom)})`,
                                                 }}
                                             />
                                         </Box>
