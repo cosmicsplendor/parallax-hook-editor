@@ -104,60 +104,44 @@ const WorkspacePreview: React.FC = () => {
                                     bounds="parent" // Constrain dragging within the layer's visible area in editor
                                 >
                                     <Box
-                                        // No need for position:absolute on the Draggable child if it's the direct child.
-                                        // Draggable applies transform: translate(x,y)
                                         sx={{
                                             width: element.width * element.scale, // Apply scale to intrinsic size
                                             height: element.height * element.scale,
                                             opacity: element.opacity,
-                                            transformOrigin: `${element.transformOriginX * 100}% ${element.transformOriginY * 100}%`, // Apply transform origin
-                                            // Base transform for scale and initial rotation. Draggable handles translate.
+                                            transformOrigin: `${element.transformOriginX * 100}% ${element.transformOriginY * 100}%`,
                                             transform: `scale(${cameraZoom}) rotate(${element.initialRotation}deg)`,
                                             outline: element.id === selectedElementId && layer.id === selectedLayerId ? '1px dashed red' : 'none',
                                             cursor: (layer.id === selectedLayerId && element.id === selectedElementId) ? 'grab' : 'default',
-                                            // zIndex for stacking visual in editor workspace (CSS stacking context)
-                                            // This is distinct from the data zIndex used for Remotion render order.
-                                            // For visual editor accuracy, we use the data zIndex here as well.
                                             zIndex: element.zIndex,
-                                            position: 'absolute', // Crucial for Draggable's position to work relative to the parent layer Box
-                                            // AND for zIndex to work correctly among siblings.
-                                            // The Draggable component itself will be positioned at element.x, element.y by its internal transform.
-                                            // So, the "left" and "top" here should be from the center of the layer.
+                                            position: 'absolute',
                                             left: `calc(50%)`, // Centered in parent initially by Draggable
                                             top: `calc(50%)`,  // Centered in parent initially by Draggable
-                                            // The element.x and element.y are handled by Draggable's transform.
-                                            // We need to apply translate(-50%, -50%) to center the element's origin itself.
-                                            // This combines with Draggable's translate(element.x, element.y)
-                                            // and our own scale/rotate.
-                                            // Let's simplify: Draggable directly applies translate(element.x, element.y).
-                                            // The rest of the transforms (scale, rotate) are applied to the child.
-                                            // The position:absolute makes it part of the flow that Draggable understands.
-                                            // The transform string below gets complex with Draggable.
-                                            // Let's ensure Draggable's x,y are relative to the layer center.
-                                            // The `position` prop of Draggable sets its `transform: translate(x,y)`.
-                                            // The `left/top: 50%` and then `translate(-50%,-50%)` inside the transform string is for centering the element at its (0,0) point
-                                            // relative to the draggable's position.
-
-                                            // Revised transform for the inner Box (child of Draggable):
-                                            // Draggable handles translate(element.x, element.y) for the outer wrapper it creates.
-                                            // The Box below is the content.
-                                            // The x,y are already applied by Draggable.
-                                            // The scale, rotation needs to be applied, and transform-origin.
-                                            // The `cameraZoom` scaling should apply to the "world" or "viewport" not individual elements directly here if parallax is handled.
-                                            // The WorkspacePreview is a simplified view.
-                                            // Let's make element.x and element.y be offsets from the layer's center (0,0).
-                                            // So Draggable's `position={{x: element.x, y: element.y}}` is correct.
-                                            // The inner box is for visuals:
                                         }}
                                     >
-                                        <Box sx={{ // This inner box is for the SVG itself and its scaling/rotation
-                                            width: '100%', // Takes width/height from parent Draggable's controlled child
-                                            height: '100%',
-                                            transformOrigin: `${element.transformOriginX * 100}% ${element.transformOriginY * 100}%`,
-                                            transform: `scale(${element.scale * cameraZoom}) rotate(${element.initialRotation}deg)`, // Apply element scale and initial rotation. CameraZoom affects apparent size.
-                                            // zIndex: element.zIndex, // zIndex on the Draggable's wrapper is better for stacking context
-                                        }}>
+                                        <Box
+                                            sx={{
+                                                position: 'relative', // Ensure the transform origin indicator is positioned correctly
+                                                width: '100%',
+                                                height: '100%',
+                                                transformOrigin: `${element.transformOriginX * 100}% ${element.transformOriginY * 100}%`,
+                                                transform: `scale(${element.scale * cameraZoom}) rotate(${element.initialRotation}deg)`,
+                                            }}
+                                        >
                                             <SVGViewer svgString={element.svgString} width="100%" height="100%" />
+                                            {/* Transform Origin Indicator */}
+                                            <Box
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: `${element.transformOriginY * 100}%`,
+                                                    left: `${element.transformOriginX * 100}%`,
+                                                    width: 8,
+                                                    height: 8,
+                                                    backgroundColor: 'white',
+                                                    border: '1px solid black',
+                                                    borderRadius: '50%',
+                                                    transform: 'translate(-50%, -50%)',
+                                                }}
+                                            />
                                         </Box>
                                     </Box>
                                 </Draggable>
