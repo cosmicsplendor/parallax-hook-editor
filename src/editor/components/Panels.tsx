@@ -326,15 +326,15 @@ export const ElementPanel: React.FC = () => {
                   label="X"
                   value={selectedElement.x}
                   onChange={(val) => handlePropertyChange('x', val)}
-                  step={2}
-                  min={-400} max={400}
+                  step={3}
+                  min={-800} max={800}
                 />
                 <SliderInput
                   label="Y"
                   value={selectedElement.y}
                   onChange={(val) => handlePropertyChange('y', val)}
-                  step={2}
-                  min={-400} max={400}
+                  step={3}
+                  min={-800} max={800}
                 />
                 <SliderInput
                   label="Scale"
